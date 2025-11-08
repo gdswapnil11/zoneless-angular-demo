@@ -1,0 +1,40 @@
+<main class="container">
+  <h1 class="title">🌀 {{title()}}</h1>
+  <p class="subtitle">
+    HttpClient + Signals + toSignal() + computed() — fully reactive, no Zone.js
+  </p>
+
+  <section class="controls">
+    <input type="text" class="search-input" placeholder="Search posts by title..." [value]="searchText()"
+      (input)="searchText.set($any($event.target).value)" />
+
+    <div class="page-size" title="Posts per page">
+      <label for="pageSize" class="sr-only">Posts per page</label>
+      <select id="pageSize" [value]="pageSize()"
+        (change)="pageSize.set(+($any($event.target).value)); postsService.reload(pageSize())">
+        <option *ngFor="let n of [10,20,30,50,100]" [value]="n">{{ n }}</option>
+      </select>
+    </div>
+
+    <button class="reload-btn" (click)="postsService.reload(pageSize())" [disabled]="postsService.loading()">
+      {{ postsService.loading() ? 'Loading...' : 'Reload Posts' }}
+    </button>
+  </section>
+
+  <div *ngIf="postsService.error()" class="error">
+    {{ postsService.error() }}
+  </div>
+
+  <div *ngIf="postsService.loading()" class="loader"></div>
+
+  <section *ngIf="!postsService.loading() && filteredPosts().length" class="posts-grid">
+    <div *ngFor="let post of filteredPosts()" class="post-card">
+      <h3>{{ post.title }}</h3>
+      <p>{{ post.body }}</p>
+    </div>
+  </section>
+
+  <p *ngIf="!postsService.loading() && !filteredPosts().length && !postsService.error()" class="no-results">
+    No posts found.
+  </p>
+</main>
